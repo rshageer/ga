@@ -293,12 +293,12 @@ var calculateFitness = function (genes) {
 };
 
 //custom randome gene func
-var randomGene = function () {
+var randomGene = function() {
     return Math.floor(Math.random() * 127);
 };
 
 //func to translate chromosome into a string representation 
-function translate(dna) {
+var translate = function(dna) {
     strArr = [];
     for (let i = 0; i < dna.genes.length; i++) {
         strArr.push(String.fromCharCode(dna.genes[i]));
