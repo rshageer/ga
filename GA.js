@@ -61,10 +61,12 @@ class DNA {
     mutate(mutationRate, randomGeneFunc = this.randomGene) {
 		// loop through each gene and randomly replace it based on the 
 		// mutation rate.
-        this.genes.map(function (v, i) {
+        this.genes = this.genes.map(function (v, i) {
             if (Math.random() <= mutationRate) {
                 return randomGeneFunc();
-            }
+            } else {
+                return v;
+			}
         });
 
     }
@@ -170,7 +172,8 @@ class Population {
 class Pool {
     constructor() {
         this.currentGeneration = new Population(); 
-        this.mutationRate = 0.01;
+        this.mutationRate = 0.005;
+        this.crossoverProbability = 0.8;
         this.generation = 0; // which generation are we currently in
     }
 
@@ -185,7 +188,16 @@ class Pool {
 			
             // uses the crossover to populate newly born DNA objects
             for (let i = 0; i < this.currentGeneration.size; i) {
-                this.crossover().forEach(function (v, i) {
+                let parents = [];
+                
+                //select parents and crossover as probable
+                if(Math.random() < this.crossoverProbability) {
+                    parents = this.crossover().slice(0);
+                } else {
+                    parents = this.selectParents().slice(0);
+                }
+                
+                parents.forEach((v, i) => {
                     newGeneration.push(v);
                 });
                 i = newGeneration.length;
@@ -218,8 +230,8 @@ class Pool {
             let parBBack = parents[1].genes.slice(crossoverPoint, parents[1].genes.length);
             parents[0].genes = [];
             parents[1].genes = [];
-            parents[0].genes = parAFront.concat(parBBack).slice(0);
-            parents[1].genes = parBFront.concat(parABack).slice(0);
+            parents[0].genes = parAFront.concat(parBBack.slice(0)).slice(0);
+            parents[1].genes = parBFront.concat(parABack.slice(0)).slice(0);
             return parents.slice(0);
             break;
 
@@ -246,75 +258,87 @@ class Pool {
 			
 			//get the total fitness of the population
             let totalFitness = 0;
-            pool.forEach(function (val, index) {
+            pool.forEach((val, index) => {
                 return totalFitness += val.fitness;
             });
-			
+
 			//select a parent
-            let r = Math.floor(Math.random() * totalFitness); //random pointer to the DNA item
-            let accFitness = 0;
-            for (let c = 0; c < pool.length; c++) {
-                accFitness += pool[c].fitness;
-                if (accFitness >= r) {
-                    parents.push(pool[c]);
-                    break;
+            if(totalFitness == 0) {
+                let index = Math.floor(Math.random() * pool.length);
+                parents.push(pool[index]);
+            } else {
+                let r = Math.floor(Math.random() * totalFitness); //random pointer to the DNA item
+                let accFitness = 0;
+
+                for (let c = 0; c < pool.length; c++) {
+                    accFitness += pool[c].fitness;
+                    if (accFitness >= r) {
+                        parents.push(pool[c]);
+                        break;
+                    }
                 }
             }
+ 
         }
-        return parents;
+
+        return parents.slice(0);
     }
 };
-
 
 //___________________________________________________________________________________//
+
 // end of library code: 
 //Implementation of above lib
-//random goal of this genetic algorithm
-var goal = "Another brick in the wall!";
-
-//custom fitness func
-var calculateFitness = function (genes) {
-    let strDNA = [];
-    let score = 0;
-    //convert ascii to string
-    for (let i = 0; i < genes.length; i++) {
-        strDNA[i] = String.fromCharCode(genes[i]);
-    }
-
-    let strGoal = goal.split("");
-
-    for (let i = 0; i < strGoal.length; i++) {
-        if (strDNA[i] == strGoal[i]) {
-            score++;
-        }
-    }
-
-    return score;
-};
-
-//custom randome gene func
-var randomGene = function() {
-    return Math.floor(Math.random() * 127);
-};
-
-//func to translate chromosome into a string representation 
-var translate = function(dna) {
-    strArr = [];
-    for (let i = 0; i < dna.genes.length; i++) {
-        strArr.push(String.fromCharCode(dna.genes[i]));
-    }
-    let str = strArr.join("");
-    return str;
-}
 //run the program
 (function () {
 
-
+    //random goal of this genetic algorithm
+    var goal = "RiazSHage";
     let p = new Pool()
-    p.currentGeneration.size = 10000;
+    p.currentGeneration.size = 1000;
+    p.mutationRate = 0.001;
+    p.crossoverProbability = .8;
+    let timeout = 300;
+    let b = 0;
+
+    //custom fitness func
+    var calculateFitness = function (genes) {
+        let strDNA = [];
+        let score = 0;
+        //convert ascii to string
+        for (let i = 0; i < genes.length; i++) {
+            strDNA[i] = String.fromCharCode(genes[i]);
+        }
+
+        let strGoal = goal.split("");
+
+        for (let i = 0; i < strGoal.length; i++) {
+            if (strDNA[i] == strGoal[i]) {
+                score++;
+            }
+        }
+
+        return score;
+    };
+
+    //custom randome gene func
+    var randomGene = function() {
+        return Math.floor(Math.random() * 127);
+    };
+
+    //func to translate chromosome into a string representation 
+    var translate = function(dna) {
+        strArr = [];
+        for (let i = 0; i < dna.genes.length; i++) {
+            strArr.push(String.fromCharCode(dna.genes[i]));
+        }
+        let str = strArr.join("");
+        return str;
+    };
+
+
     p.currentGeneration.generateRandom(goal.length, randomGene, calculateFitness);
 
-    let b = 0;
     while (p.currentGeneration.getFittest().fitness <= goal.length) {
         let d = p.currentGeneration.getFittest();
         console.log("Generation: " + p.generation + "\t\tFitness: " + Math.floor((d.fitness / goal.length) * 100) + "%\t\tResult: " + translate(d));
@@ -323,7 +347,7 @@ var translate = function(dna) {
         p.generatePopulation();
 
         b++;
-        if (b >= 10000) break;
+        if (b >= timeout) break;
     }
 
 }());
