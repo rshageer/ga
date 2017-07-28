@@ -3,7 +3,7 @@
     //random goal of this genetic algorithm
     let goal                    = "All in all we're just another brick in the wall";
     let mutationRate            = 0.015;
-    let crossoverProbability    = 0.7;
+    let crossoverProbability    = 0.65;
     let p                       = new Pool(mutationRate, crossoverProbability);
     p.currentGeneration.size    = 750;
     let timeout                 = 2000;
