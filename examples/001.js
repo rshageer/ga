@@ -1,14 +1,14 @@
 (function () {
 
     //random goal of this genetic algorithm
-    let goal                    = "All in all we're just another brick in the wall";
+    let goal                    = "Riaz Shageer";
     let mutationRate            = 0.015;
     let crossoverProbability    = 0.65;
     let p                       = new Pool(mutationRate, crossoverProbability);
     p.currentGeneration.size    = 750;
     let timeout                 = 2000;
     let b                       = 0;
-    let completeCriteria        = Math.pow(goal.length, 2);
+    let completeCriteria        = goal.length;
 
     //custom fitness func
     let calculateFitness = function (genes) {
@@ -33,7 +33,7 @@
 
     //custom randome gene func
     let randomGene = function() {
-        return Math.floor(Math.random() * 127);
+        return Math.floor(Math.random() * (127 - 32)) + 32;
     };
 
     //func to translate chromosome into a string representation 

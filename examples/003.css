@@ -1,0 +1,27 @@
+body{
+    display:grid;
+    font-family: 'Zilla Slab', serif;
+    grid-template-columns: 3fr 1fr;
+    grid-gap: 10px;
+    grid-template-rows: 1fr 4fr;
+    grid-template-areas:
+        "heading heading"
+        "chart info"
+}
+header{
+    grid-area:heading;
+    text-align: center;
+    font-family: 'Acme', sans-serif;
+    font-size: 40px;
+}
+article{
+    grid-area:chart;
+}
+article div{
+    display:block;
+    width:400;
+    height:400;
+}
+aside{
+    grid-area:info;
+}
